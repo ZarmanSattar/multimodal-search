@@ -110,3 +110,84 @@ def reset() -> None:
     except Exception:
         pass
     _collection = None
+
+
+# ─── Visual collection for CLIP image embeddings (512-dim) ───────────────────
+# CLIP image embeddings live in a separate collection because they have a
+# different dimensionality (512) than text embeddings (384). ChromaDB enforces
+# uniform dim per collection, so we keep them separate and merge results in
+# the search layer.
+
+VISUAL_COLLECTION_NAME = "multimodal_visual"
+
+_visual_collection: chromadb.Collection | None = None
+
+
+def get_visual_collection() -> chromadb.Collection:
+    """Lazy-init the 512-dim visual collection for CLIP frame embeddings."""
+    global _visual_collection
+    if _visual_collection is None:
+        client = get_client()
+        _visual_collection = client.get_or_create_collection(
+            name=VISUAL_COLLECTION_NAME,
+            metadata={"hnsw:space": "cosine"},
+        )
+    return _visual_collection
+
+
+def add_visual_documents(
+    ids: List[str],
+    embeddings: List[List[float]],
+    documents: List[str],
+    metadatas: List[Dict[str, Any]],
+) -> None:
+    """Add CLIP visual embeddings to the visual collection.
+
+    `documents` here is a short human-readable label (e.g., 'frame 12 of video.mp4')
+    since we don't have natural-language text for raw visual frames. The actual
+    semantic description comes from BLIP captions stored separately in the main
+    collection.
+    """
+    collection = get_visual_collection()
+    collection.add(
+        ids=ids,
+        embeddings=embeddings,
+        documents=documents,
+        metadatas=metadatas,
+    )
+
+
+def query_visual(
+    query_embedding: List[float],
+    n_results: int = 5,
+    where: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """Query the visual collection. Embedding must be 512-dim (CLIP)."""
+    collection = get_visual_collection()
+    return collection.query(
+        query_embeddings=[query_embedding],
+        n_results=n_results,
+        where=where,
+    )
+
+
+def visual_count() -> int:
+    """Return total number of visual frames in the visual collection."""
+    return get_visual_collection().count()
+
+
+def reset_visual() -> None:
+    """Delete the visual collection only."""
+    global _visual_collection
+    client = get_client()
+    try:
+        client.delete_collection(name=VISUAL_COLLECTION_NAME)
+    except Exception:
+        pass
+    _visual_collection = None
+
+
+def reset_all() -> None:
+    """Reset both collections. Used for full re-ingestion."""
+    reset()
+    reset_visual()
