@@ -198,29 +198,32 @@ Response includes `rank`, `id`, `modality`, `source`, `timestamp_sec`, `document
 ---
 
 ## 📂 Project Structure
+
+```text
 multimodal-search/
-├── app.py                    Streamlit demo UI
+├── app.py                    # Streamlit demo UI
 ├── requirements.txt
 ├── README.md
-├── chroma_db/                Persistent vector store (gitignored)
+├── chroma_db/                # Persistent vector store (gitignored)
 ├── data/
-│   ├── text/                 Sample text articles
-│   ├── audio/                Audio samples (gitignored)
-│   ├── video/                Video samples (gitignored)
-│   └── queries/              Audio query samples
+│   ├── text/                 # Sample text articles
+│   ├── audio/                # Audio samples (gitignored)
+│   ├── video/                # Video samples (gitignored)
+│   └── queries/              # Audio query samples
 ├── src/
-│   ├── embeddings.py         MiniLM wrapper
-│   ├── vectorstore.py        ChromaDB wrapper (2 collections)
-│   ├── ingest.py             Text ingestion
-│   ├── audio_ingest.py       Whisper + audio ingestion
-│   ├── clip_embed.py         CLIP image + text encoders
-│   ├── blip_caption.py       BLIP image captioning
-│   ├── video_ingest.py       Full video pipeline
-│   └── api.py                FastAPI app
+│   ├── embeddings.py         # MiniLM wrapper
+│   ├── vectorstore.py        # ChromaDB wrapper (2 collections)
+│   ├── ingest.py             # Text ingestion
+│   ├── audio_ingest.py       # Whisper + audio ingestion
+│   ├── clip_embed.py         # CLIP image + text encoders
+│   ├── blip_caption.py       # BLIP image captioning
+│   ├── video_ingest.py       # Full video pipeline
+│   └── api.py                # FastAPI app
 └── scripts/
-├── search.py             Main search CLI + library
-├── search_by_audio.py    Audio-as-query CLI
-└── ingest_*_test.py      Per-modality ingestion smoke tests
+    ├── search.py             # Main search CLI + library
+    ├── search_by_audio.py    # Audio-as-query CLI
+    └── ingest_*_test.py      # Per-modality ingestion smoke tests
+```
 
 ---
 
